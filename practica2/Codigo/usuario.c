@@ -32,10 +32,10 @@ int usuario_mas(char* scrn, char* name){
     SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
 
     /*Query*/
-    sprintf(query, "SELECT max(usuario.uid) FROM usuario;");
-    fprintf(stdout, "%s", query);
+    sprintf(query, "SELECT max(usuario.idusuario) FROM usuario;\n");
+    fprintf(stdout, "%s\n", query);
     SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
-    SQLBindCol(stmt, 1, SQL_C_SLONG, &idusuario, sizeof(SQLINTEGER), NULL);
+    SQLBindCol(stmt, 1, SQL_C_SLONG, &idusuario, sizeof(SQLINTEGER), NULL);    
     ret = SQLFetch(stmt);
     if (!SQL_SUCCEEDED(ret)) {
         return ERROR;
@@ -47,8 +47,8 @@ int usuario_mas(char* scrn, char* name){
  	timeinfo = localtime ( &rawtime );
 
     /*Query*/
-    sprintf(query, "INSERT INTO usuario(idusuario,nombre,ccard,scrname,joindate,expdate,exists) VALUES(%d, %s, NULL, %s, %s, 1/1/10000, 1);", idusuario+1, name, scrn, asctime (timeinfo));
-    fprintf(stdout, "%s", query);
+    sprintf(query, "INSERT INTO usuario(idusuario,nombre,ccard,scrname,joindate,expdate,exists) VALUES(%d, %s, NULL, %s, %s, 1/1/10000, 1);\n", idusuario+1, name, scrn, asctime (timeinfo));
+    fprintf(stdout, "%s\n", query);
     SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
     SQLCloseCursor(stmt);
 
@@ -83,7 +83,7 @@ int usuario_menos(char* scrn){
     SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
 
     /*Query*/
-    sprintf(query, "UPDATE usuario SET exists = 0 WHERE usuario.srcname = %s;", srcn);
+    sprintf(query, "UPDATE usuario SET exists = 0 WHERE usuario.srcname = %s;", scrn);
     fprintf(stdout, "%s", query);
     SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
     SQLCloseCursor(stmt);
@@ -101,24 +101,41 @@ int usuario_menos(char* scrn){
 }
 
 int main(int argc, char** argv) {
-   
-    if(argc>1){
-     	if(strcmp(argv[1], '+')==0){
-		    if(argc==4){
-				if(usuario_mas(argv[2], argv[3])==OK){
-				    fprintf(stdout, "OK");
-				    return 0;
-				}
-		    }
-		} else if(strcmp(argv[1], '-')==0){
-		    if(argc==3){
-				if(usuario_menos(argv[2])==OK){
-				    fprintf(stdout, "OK");
-				    return 0;
-				}
-		    }
-		}  
+    
+
+    printf("Practica numero 2\n");
+    printf("Realizada por: Emilio Cuesta y Adrian Fernandez\n");
+    printf("Grupo: 1201\n\n");
+    
+    if(argc<3||(*argv[1]!='+' && *argv[1]!= '-')||(*argv[1]=='+' && argc!=4)||(*argv[1]=='-' && argc!=3)){
+        fprintf(stderr, "Error en los parametros de entrada:\n");
+        fprintf(stderr, "Si quiere añadir un usuario inserte:\n");
+        fprintf(stderr, "%s + <screen_name> %c<full_name>%c\n", argv[0], 34, 34);
+        fprintf(stderr, "Si quiere eliminar un usuario inserte:\n");
+        fprintf(stderr, "%s - <screen_name> \n", argv[0]);
+        return 1;
     }
-	
+
+     if(*argv[1]=='+'){
+		  if(argc==4){
+			if(usuario_mas(argv[2], argv[3])==OK){
+				fprintf(stdout, "Usuario añadido correctamente!\n");
+				return 0;
+			}
+		  }
+	} 
+    else if(*argv[1]=='-'){
+		  if(argc==3){
+			if(usuario_menos(argv[2])==OK){
+				fprintf(stdout, "Usuario eliminado correctamente!\n");
+				return 0;
+			}
+		  }
+		}  
+
+
+    fprintf(stdout, "Operacion fallida\n");
+
     return 1;
-}
+  	
+    }

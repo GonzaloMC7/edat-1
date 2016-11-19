@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -ansi
 LDLIBS = -lodbc
 
-EXE = odbc-test odbc-example1 odbc-example2 odbc-example3 odbc-example4
+EXE = odbc-test odbc-example1 odbc-example2 odbc-example3 odbc-example4 usuario
 
 all : $(EXE)
 
