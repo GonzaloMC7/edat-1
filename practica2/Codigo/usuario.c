@@ -31,8 +31,19 @@ int usuario_mas(char* scrn, char* name){
     /* Allocate a statement handle */
     SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
 
+    sprintf(query, "SELECT usuario.scrname FROM usuario WHERE usuario.scrname='%s' AND usuario.exists='1';", scrn);
+    fprintf(stdout, "%s\n", query);
+    SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+    SQLBindCol(stmt, 1, SQL_C_SLONG, &idusuario, sizeof(SQLINTEGER), NULL);    
+    ret = SQLFetch(stmt);
+    if (SQL_SUCCEEDED(ret)) {
+        fprintf(stderr, "Scrn no disponible\n");
+        return ERROR;
+    }
+    SQLCloseCursor(stmt);
+
     /*Query*/
-    sprintf(query, "SELECT max(usuario.idusuario) FROM usuario;\n");
+    sprintf(query, "SELECT max(usuario.idusuario) FROM usuario;");
     fprintf(stdout, "%s\n", query);
     SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
     SQLBindCol(stmt, 1, SQL_C_SLONG, &idusuario, sizeof(SQLINTEGER), NULL);    
@@ -42,14 +53,19 @@ int usuario_mas(char* scrn, char* name){
     }
     SQLCloseCursor(stmt);
 
+
+
     /*Get the current time*/
   	time ( &rawtime );
  	timeinfo = localtime ( &rawtime );
 
     /*Query*/
-    sprintf(query, "INSERT INTO usuario(idusuario,nombre,ccard,scrname,joindate,expdate,exists) VALUES(%d, %s, NULL, %s, %s, 1/1/10000, 1);\n", idusuario+1, name, scrn, asctime (timeinfo));
+    sprintf(query, "INSERT INTO usuario(idusuario,nombre,ccard,scrname,joindate,expdate,exists) VALUES(%d, '%s', NULL, '%s', '%s', '1/1/10000', '1');", idusuario+1, name, scrn, asctime (timeinfo));
     fprintf(stdout, "%s\n", query);
-    SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+    ret=SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+     if (!SQL_SUCCEEDED(ret)) {
+        return ERROR;
+    }
     SQLCloseCursor(stmt);
 
     /* Free up statement handle */
@@ -83,9 +99,25 @@ int usuario_menos(char* scrn){
     SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
 
     /*Query*/
-    sprintf(query, "UPDATE usuario SET exists = 0 WHERE usuario.srcname = %s;", scrn);
-    fprintf(stdout, "%s", query);
-    SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+    sprintf(query, "SELECT usuario FROM usuario WHERE usuario.scrname = '%s' AND usuario.exists='1';", scrn);
+    fprintf(stdout, "%s\n", query);
+
+    ret = SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+    if (!SQL_SUCCEEDED(ret)) {
+        fprintf(stderr,"No existen usuarios con ese scrn\n");
+        return ERROR;
+    }
+    
+    SQLCloseCursor(stmt);
+
+
+    sprintf(query, "UPDATE usuario SET exists = '0' WHERE usuario.scrname = '%s' AND usuario.exists='1';", scrn);
+    fprintf(stdout, "%s\n", query);
+
+    ret = SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+    if (!SQL_SUCCEEDED(ret)) {
+        return ERROR;
+    }
     SQLCloseCursor(stmt);
 
     /* Free up statement handle */

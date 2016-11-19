@@ -27,11 +27,11 @@ SELECT  COUNT(O.isbn) as LibrosVendidos
 FROM libro as L, rincluido as R, raplicada as O
 WHERE L.autor='Arturo Perez Reverte' AND L.isbn=R.isbn AND L.isbn=O.isbn 
 
---4. ¿Cuánto dinero se ha ganado vendiendo libros de un editor dado?
+--4. ¿Cuánto dinero se ha ganado vendiendo libros de un editor dado? 
 
 SELECT SUM(Q.Precios) as Ganancia
-FROM  (SELECT V.importe as Precios
-       FROM rincluido as R, venta AS V, libro as L, raplicada as O
+FROM  (SELECT L.precio as Precios
+       FROM rincluido as R, venta AS V, libro as L 
        WHERE L.editorial='Penguin' AND L.isbn=R.isbn AND R.idventa=V.idventa 
        ) as Q
       
@@ -54,9 +54,9 @@ FROM  (SELECT DISTINCT V.idusuario as Usuarios
 --7. ¿Cuánto dinero se ha ganado vendiendo libros en Francés?
 
 SELECT SUM(Q.Ganancia)
-FROM  (SELECT V."Importe" as Ganancia
-       FROM "VENTA" as V, "R.INCLUIDO" as I, "EDICION" as E
-       WHERE   V."IDVenta"=I."IDVenta" AND I."ISBN"=E."ISBN" AND E."Idioma"='Frances' ) as Q
+FROM  (SELECT L.precio as Ganancia
+       FROM venta as V, rincluido as I,  libro as L
+       WHERE   V.idventa=I.idventa AND I.isbn=L.isbn AND L.idioma='Frances' ) as Q
 
 --8. ¿En que días hubo ofertas de libros de la editorial Adelpi?
 
