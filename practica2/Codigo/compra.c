@@ -19,13 +19,17 @@ int venta_anadir(char* scrn, char** isbn, int nisbn){
     SQLHSTMT stmt;
     SQLRETURN ret; /* ODBC API return status */
 
-    SQLINTEGER idventa, idusuario;
+    SQLINTEGER idventa, idusuario, auxidoferta;
+    SQLINTEGER idofertas[100];
     SQLDOUBLE precio;
     char query[512];
     time_t rawtime;
     struct tm * timeinfo;
-    char fecha[20];
-    int i, descuento;
+    char fecha[20], auxfechai[20], auxfechaf[20];
+    char fechasi[100][20];
+    char fechasf[100][20];
+    int i,j,k,auxdescuento;
+    int descuentos[100];
     float importe, total=0;
     /* CONNECT */
     ret = odbc_connect(&env, &dbc);
@@ -68,6 +72,7 @@ int venta_anadir(char* scrn, char** isbn, int nisbn){
     time ( &rawtime );
  	timeinfo = localtime ( &rawtime );
     strftime(fecha, 20, "%Y-%m-%d", timeinfo);
+
     /*Sacamos idusuario a partir de su scrname y lo guardamos en idusuario*/
     sprintf(query, "SELECT usuario.idusuario FROM usuario WHERE usuario.scrname='%s' AND usuario.exists='1';", scrn);
     fprintf(stdout, "%s\n", query);
@@ -81,12 +86,109 @@ int venta_anadir(char* scrn, char** isbn, int nisbn){
       
     SQLCloseCursor(stmt);
 
-    /*Insertamos los datos en venta*/
+   
+
+    /*El programa imprimirá en pantalla el coste de cada libro (uno por
+     línea) teniendo en cuenta el descuento, y el coste total de la compra.*/
+
+    for(i=0; i < nisbn; i++){
+        /*Query*/
+    	sprintf(query,  "SELECT O.fechai, O.fechaf, O.idoferta, O.descuento \n" 
+						"FROM  oferta as O, libro as L, raplicada as R\n"
+						"WHERE L.isbn='%s' AND L.isbn=R.isbn AND R.oferta=O.idoferta" , isbn[i]);
+        fprintf(stdout, "%s\n", query);
+        SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+        SQLBindCol(stmt, 1, SQL_C_CHAR, &auxfechai, 20*sizeof(SQLCHAR), NULL);
+    	SQLBindCol(stmt, 2, SQL_C_CHAR, &auxfechaf, 20*sizeof(SQLCHAR), NULL);   
+    	SQLBindCol(stmt, 3, SQL_C_SLONG, &auxidoferta, sizeof(SQLINTEGER), NULL);
+    	SQLBindCol(stmt, 4, SQL_C_SLONG, &auxdescuento, sizeof(SQLINTEGER), NULL);
+
+    	ret = SQLFetch(stmt);
+        
+        /*Caso en que un libro tiene ofertas, válidas o no*/
+
+        if(SQL_SUCCEEDED(ret)){
+
+
+    		for(j=0; SQL_SUCCEEDED(ret); j++){
+
+        		strcpy(fechasi[j], auxfechai);
+    			strcpy(fechasf[j], auxfechaf);
+        		idofertas[j]=auxidoferta;
+    			descuentos[j]=auxdescuento;
+    			ret = SQLFetch(stmt);
+
+    		}
+    	
+    		SQLCloseCursor(stmt);
+        
+    		auxdescuento=0;
+    		auxidoferta=0;
+   			for(k=0; k<j; k++){
+   				if(strcmp(fechasi[k], fecha)<0 && strcmp(fecha, fechasf[k])<0 ){
+   					if(auxdescuento<descuentos[k]){
+   						auxdescuento=descuentos[k];
+   						auxidoferta=idofertas[k];
+   					}
+   				}
+   			}
+
+   			fprintf(stdout, "Oferta aplicada de %d%% con id %d\n", auxdescuento, auxidoferta);
+   			/*el libro tiene ofertas en fecha*/
+   			if(auxdescuento!=0){
+				    
+        		sprintf(query,  "SELECT L.precio as precio, O.descuento as descuento\n" 
+							"FROM libro as L, oferta as O, raplicada as R\n" 
+							"WHERE L.isbn='%s' AND L.isbn=R.isbn AND R.oferta=O.idoferta AND O.idoferta=%d\n" , isbn[i], auxidoferta);
+       			fprintf(stdout, "%s\n", query);
+        		SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+        		SQLBindCol(stmt, 1, SQL_C_DOUBLE, &precio, sizeof(SQLDOUBLE), NULL);
+    			SQLBindCol(stmt, 2, SQL_C_SLONG, &auxdescuento, sizeof(SQLDOUBLE), NULL);   
+   				ret = SQLFetch(stmt);
+   				SQLCloseCursor(stmt);
+   			}
+   			/*el libro no tiene ofertas en fecha*/
+   			else{
+   				fprintf(stdout,"No hay ofertas en fecha para el libro con isbn %s\n", isbn[i]);
+   			}
+   		}
+   		
+   		/*Caso en que el libro no tiene ofertas, ni en fecha ni fuera de fecha*/
+   		else{
+        
+        	SQLCloseCursor(stmt);
+        	fprintf(stdout, "No hay ofertas  para el libro con isbn %s\n", isbn[i]);
+        	sprintf(query, "SELECT L.precio as precio\n" 
+						   "FROM libro as L\n" 
+						   "WHERE L.isbn='%s'", isbn[i]);
+        	fprintf(stdout, "%s\n", query);
+        	SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+        	SQLBindCol(stmt, 1, SQL_C_DOUBLE, &precio, sizeof(SQLDOUBLE), NULL);
+        	auxdescuento=0;
+        	ret = SQLFetch(stmt);
+        	if (!SQL_SUCCEEDED(ret)){
+        		return ERROR;
+        	}
+        	SQLCloseCursor(stmt);
+    	}
+    	
+    	
+    	fprintf(stdout,"Libro con isbn: %s", isbn[i]);
+    	fprintf(stdout,"\tSu precio es: %.2f\n", precio);
+    	fprintf(stdout,"\tSu descuento es: %d%%\n", auxdescuento);
+        importe=precio-precio*auxdescuento/100;
+        total+=importe;
+    	fprintf(stdout,"\tSu coste es: %.2f €\n", importe);
+    }
+
+    fprintf(stdout,"El coste total de la compra es de %.2f €\n", total);
+
+     /*Insertamos los datos en venta*/
     /*Query*/
     fprintf(stdout, "Idusuario es: %d\n", idusuario);
     fprintf(stdout, "Idventa es: %d\n", idventa);
 
-    sprintf(query, "INSERT INTO venta(idventa,idusuario,metododepago,fecha) VALUES(%d, %d, 'ccard', '%s');", idventa+1, idusuario, fecha);
+    sprintf(query, "INSERT INTO venta(idventa,idusuario,metododepago,fecha, importe) VALUES(%d, %d, 'ccard', '%s', %.2f);", idventa+1, idusuario, fecha, importe);
     fprintf(stdout, "%s\n", query);
     ret=SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
     if (!SQL_SUCCEEDED(ret)) {
@@ -108,55 +210,6 @@ int venta_anadir(char* scrn, char** isbn, int nisbn){
         SQLCloseCursor(stmt);
     }
 
-
-    /*El programa imprimirá en pantalla el coste de cada libro (uno por
-     línea) teniendo en cuenta el descuento, y el coste total de la compra.*/
-
-    for(i=0; i < nisbn; i++){
-        /*Query*/
-        sprintf(query,  "SELECT  min(Q.precio), max(Q.descuento)\n" 
-						"FROM   (SELECT L.precio as precio, O.descuento as descuento\n" 
-								"\tFROM libro as L, oferta as O, raplicada as R\n" 
-								"\tWHERE L.isbn='%s' AND L.isbn=R.isbn AND R.oferta=O.idoferta\n" 
-								"\tGROUP BY O.descuento, L.precio) as Q", isbn[i]);
-        fprintf(stdout, "%s\n", query);
-        SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
-        SQLBindCol(stmt, 1, SQL_C_DOUBLE, &precio, sizeof(SQLDOUBLE), NULL);
-    	SQLBindCol(stmt, 2, SQL_C_SLONG, &descuento, sizeof(SQLDOUBLE), NULL);   
-   		ret = SQLFetch(stmt);
-        
-        /*Caso en que el libro no tiene oferta*/
-
-        if (!SQL_SUCCEEDED(ret)) {
-        	SQLCloseCursor(stmt);
-        	sprintf(query, "SELECT L.precio as precio\n" 
-						    "FROM libro as L\n" 
-						    "WHERE L.isbn='%s'", isbn[i]);
-        	fprintf(stdout, "%s\n", query);
-        	SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
-        	SQLBindCol(stmt, 1, SQL_C_DOUBLE, &precio, sizeof(SQLDOUBLE), NULL);
-        	descuento=0;
-        	ret = SQLFetch(stmt);
-        	if (!SQL_SUCCEEDED(ret)){
-        		fprintf(stdout,"bacon\n");
-        		return ERROR;
-        	}
-    	}
-    	
-    	/*Caso en que el libro tiene ofertas*/
-    	
-    	
-    	SQLCloseCursor(stmt);
-
-
-    	fprintf(stdout,"El precio es: %f\n", precio);
-    	fprintf(stdout,"El descuento es: %d%%\n", descuento);
-        importe=precio-precio*descuento/100;
-        total+=importe;
-    	fprintf(stdout,"El coste del libro  con isbn %s es: %.2f €\n", isbn[i], importe);
-    }
-
-    fprintf(stdout,"El coste total de la compra es de %.2f €\n", total);
 
 
     /* Free up statement handle */
