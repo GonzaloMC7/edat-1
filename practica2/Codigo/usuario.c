@@ -146,14 +146,14 @@ int main(int argc, char** argv) {
         fprintf(stderr, "%s + <screen_name> %c<full_name>%c\n", argv[0], 34, 34);
         fprintf(stderr, "Si quiere eliminar un usuario inserte:\n");
         fprintf(stderr, "%s - <screen_name> \n", argv[0]);
-        return 1;
+        return ERROR;
     }
 
-     if(*argv[1]=='+'){
+    if(*argv[1]=='+'){
 		  if(argc==4){
 			if(usuario_mas(argv[2], argv[3])==OK){
 				fprintf(stdout, "Usuario añadido correctamente!\n");
-				return 0;
+				return OK;
 			}
 		  }
 	} 
@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
 		  if(argc==3){
 			if(usuario_menos(argv[2])==OK){
 				fprintf(stdout, "Usuario eliminado correctamente!\n");
-				return 0;
+				return OK;
 			}
 		  }
 		}  
@@ -169,6 +169,6 @@ int main(int argc, char** argv) {
 
     fprintf(stdout, "Operacion fallida\n");
 
-    return 1;
+    return ERROR;
   	
     }
