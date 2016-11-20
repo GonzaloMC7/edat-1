@@ -18,7 +18,7 @@ int usuario_mas(char* scrn, char* name){
 
     SQLINTEGER idusuario;
     char query[512];
-
+    char fecha [20];
     time_t rawtime;
     struct tm * timeinfo;
 
@@ -58,9 +58,10 @@ int usuario_mas(char* scrn, char* name){
     /*Get the current time*/
   	time ( &rawtime );
  	timeinfo = localtime ( &rawtime );
-
+    strftime(fecha, 20, "%Y-%m-%d", timeinfo );
+    
     /*Query*/
-    sprintf(query, "INSERT INTO usuario(idusuario,nombre,ccard,scrname,joindate,expdate,exists) VALUES(%d, '%s', NULL, '%s', '%s', '1/1/10000', '1');", idusuario+1, name, scrn, asctime (timeinfo));
+    sprintf(query, "INSERT INTO usuario(idusuario,nombre,ccard,scrname,joindate,expdate,exists) VALUES(%d, '%s', NULL, '%s', '%s', '1/1/10000', '1');", idusuario+1, name, scrn, fecha );
     fprintf(stdout, "%s\n", query);
     ret=SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
      if (!SQL_SUCCEEDED(ret)) {

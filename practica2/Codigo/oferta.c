@@ -30,27 +30,50 @@ int oferta_anadir(int discount, char* from, char* to, char** isbn, int nisbn){
     SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
 
     /*Query*/
-    sprintf(query, "SELECT max(oferta.idoferta) FROM oferta;");
-    fprintf(stdout, "%s\n", query);
+    for(i=0; i< nisbn; i++){
+
+    sprintf(query, "SELECT libro.isbn FROM libro WHERE libro.isbn='%s';", isbn[i]);
     SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
-    SQLBindCol(stmt, 1, SQL_C_SLONG, &idoferta, sizeof(SQLINTEGER), NULL);    
     ret = SQLFetch(stmt);
-    if (!SQL_SUCCEEDED(ret)) {
+    if(!SQL_SUCCEEDED(ret)){
+        fprintf(stderr, "El libro con isbn %s no existe\n", isbn[i]);
         return ERROR;
     }
     SQLCloseCursor(stmt);
 
+    }
+
     /*Query*/
-    sprintf(query, "INSERT INTO oferta(idoferta,descuento,fechai,fechaf) VALUES(%d, %d, %s, %s);", idoferta+1, discount, from, to);
+    sprintf(query, "SELECT max(oferta.idoferta) FROM oferta;");
     fprintf(stdout, "%s\n", query);
     SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+    SQLBindCol(stmt, 1, SQL_C_SLONG, &idoferta, sizeof(SQLINTEGER), NULL);
+    fprintf(stdout,"%d\n", idoferta);
+    ret = SQLFetch(stmt);
+    if(!SQL_SUCCEEDED(ret)){
+        idoferta=0;
+    }
+    SQLCloseCursor(stmt);
+
+    /*Query*/
+    sprintf(query, "INSERT INTO oferta(idoferta,descuento,fechai,fechaf) VALUES(%d, %d, '%s', '%s');", idoferta+1, discount, from, to);
+    fprintf(stdout, "%s\n", query);
+    ret=SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+    if (!SQL_SUCCEEDED(ret)) {
+        return ERROR;
+    }
+
     SQLCloseCursor(stmt);
 
     for(i=0; i < nisbn; i++){
         /*Query*/
-        sprintf(query, "UPDATE raplicada SET oferta = %d WHERE raplicada.libro = %s;", idoferta+1, isbn[i]);
+        sprintf(query, "INSERT INTO raplicada(oferta,isbn) VALUES(%d, '%s');", idoferta+1, isbn[i]);
         fprintf(stdout, "%s\n", query);
-        SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+        ret=SQLExecDirect(stmt, (SQLCHAR*) query, SQL_NTS);
+        if (!SQL_SUCCEEDED(ret)) {
+        return ERROR;
+    }
+
         SQLCloseCursor(stmt);
     }
 
@@ -79,6 +102,13 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Error en los parametros de entrada:\n");
         fprintf(stderr, "Si quiere añadir una oferta inserte:\n");
         fprintf(stderr, "%s <descuento> <de> <a> <isbn> <isbn> .... <isbn>\n", argv[0]);
+        fprintf(stderr, "Formato de las fechas %caaaa-mm-dd%c\n", 34,34);
+        return ERROR;
+    }
+    if(strcmp(argv[2],argv[3])>0){
+        fprintf(stderr, "Error en los parametros de entrada:\n");
+        fprintf(stderr, "La fecha final es anterior a la fecha de inicio:\n");
+        fprintf(stderr, "El FORMATO de las es fechas %caaaa-mm-dd%c\n", 34,34);
         return ERROR;
     }
 
