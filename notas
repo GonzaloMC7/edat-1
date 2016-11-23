@@ -1,0 +1,31 @@
+hay que editar record.c y table.c
+luego hay que comporbar que no se que son ficheros iguales con fseek
+-tamanio
+-contenido
+-solo para table.c y record.c 
+-no tocar sql.c 
+-no tocar Makefile, only use
+
+en carpeta operation,
+
+count,limit,offset,union tenemos que implementarlos nosotros.
+el resto van bien (copiar mas menos)
+
+modificar types.c/h 
+
+-añadir dos tipos más
+
+en examle files vienen los ejemplos.
+
+como probamos que esta bien
+abrimos bankbash
+moficiamos una linea para que pruebe nuestro ejecutablke(por defecto esta el suyo)
+
+las columnas no tienen nombre, solo numero de tabla y tipo de datos
+a la primera col se accedera con el 0
+
+hasta aqui solo habriamos utilizado table.c
+
+para hacer make hay que usar make wvs
+
+
