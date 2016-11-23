@@ -1,0 +1,16 @@
+#account_id	branch	amount
+1	Brooklyn	456
+2	Queens	1422
+3	Brooklyn	2411
+4	Queens	245
+5	Queens	778
+6	Bronx	123
+7	Bronx	1000
+8	Manhattan	555
+9	Manhattan	1877
+10	Brooklyn	6545
+11	Manhattan	888
+12	Manhattan	1211
+13	Queens	12
+14	Brooklyn	741
+15	Queens	471

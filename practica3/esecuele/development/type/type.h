@@ -9,6 +9,8 @@
 typedef enum {
     INT, /*integer*/
     STR, /*string*/
+    DBL, /*double*/
+    LNG, /*long*/
 } type_t;
 
 /* length in bytes of the value */
