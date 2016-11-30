@@ -3,28 +3,68 @@
 /* COUNT OPERATION: operation whose result is the number of results of the source operation */
 
 typedef struct {
-    /* to be implemented */
+    operation_t* operation;
 } operation_count_args_t;
 
 void
 operation_count_reset(void* vargs) {
-    /* to be implemented */
+    operation_count_args_t* args = vargs;
+
+    args->pos = -1;
+    args->count = 1;
+
+    return;
 }
 
 int operation_count_next(void* vargs) {
-    /* to be implemented */
+    int ret;
+    operation_count_args_t* args = vargs;
+
+    operation_t* operation = args->operation;
+
+    if (!operation_next(operation)) return 0;
+
+    return 1;
 }
 
 void* operation_count_get(int col, void* vargs) {
-    /* to be implemented */
+    void* value;
+    operation_count_args_t* args = vargs;
+
+    operation_t* operation = args->operation;
+
+    if (col < operation->ncols) {
+        value = operation_get(col, args->operation);
+    }
+
+    return value;
 }
 
 void operation_count_close(void* vargs) {
-    /* to be implemented */
+    operation_count_args_t* args = vargs;
+
+    operation_close(args->operation);
+    free(args);
+    return;
 }
 
 operation_t*
 operation_count_create(operation_t* suboperation) {
-    /* to be implemented */
-}
+    operation_t* operation;
+    operation_count_args_t* args;
 
+    args = malloc(sizeof(operation_count_args_t));
+    args->operation = suboperation;
+
+    operation = malloc(sizeof(operation_t));
+    operation->args = args;
+    operation->reset = operation_count_reset;
+    operation->next = operation_count_next;
+    operation->get = operation_count_get;
+    operation->close = operation_count_close;
+    operation->ncols = operation_ncols(suboperation);
+    operation->types = malloc(suboperation->ncols * sizeof(type_t));
+    memcpy(operation->types, suboperation->types, suboperation->ncols * sizeof(type_t));
+
+    return operation;
+}
