@@ -28,10 +28,6 @@ table_close(table_t* table);
 int
 table_ncols(table_t* table);
 
-/* path to the file containing the records of the file */
-char*
-table_data_path(table_t* table);
-
 /* returns the data types of the columns of the table */
 type_t*
 table_types(table_t* table);
