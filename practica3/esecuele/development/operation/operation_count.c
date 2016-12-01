@@ -8,6 +8,7 @@ typedef struct {
 
 void
 operation_count_reset(void* vargs) {
+
     operation_count_args_t* args = vargs;
 
     args->pos = -1;

@@ -99,7 +99,7 @@ record_t* table_read_record(table_t* table, long pos) {
   void** values;
   size_t size;
   long next;
-  record_t record;
+  record_t* record;
 
   assert(table!=NULL);
 
@@ -130,10 +130,14 @@ record_t* table_read_record(table_t* table, long pos) {
 
 void table_insert_record(table_t* table, void** values) {
     int i;
+    size_t size;
     assert(table!=NULL);
 
+
+
     for(i=0; i< table->ncols; i++){
-      fwrite(values[i] , value_lenght(table->types[i], values[i]) , 1 , table->file);
+      size=value_length(table->types[i], values[i]);
+      fwrite(values[i] , size , 1 , table->file);
     }
 
     table->last_pos=ftell(table->file);
