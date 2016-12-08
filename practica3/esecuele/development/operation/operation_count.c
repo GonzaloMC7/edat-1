@@ -3,16 +3,14 @@
 /* COUNT OPERATION: operation whose result is the number of results of the source operation */
 
 typedef struct {
-    operation_t* operation;
+    operation_t* suboperation;
 } operation_count_args_t;
 
 void
 operation_count_reset(void* vargs) {
-
     operation_count_args_t* args = vargs;
 
-    args->pos = -1;
-    args->count = 1;
+    operation_reset(args->suboperation);
 
     return;
 }
@@ -21,7 +19,7 @@ int operation_count_next(void* vargs) {
     int ret;
     operation_count_args_t* args = vargs;
 
-    operation_t* operation = args->operation;
+    operation_t* operation = args->suboperation;
 
     if (!operation_next(operation)) return 0;
 
@@ -32,7 +30,7 @@ void* operation_count_get(int col, void* vargs) {
     void* value;
     operation_count_args_t* args = vargs;
 
-    operation_t* operation = args->operation;
+    operation_t* operation = args->suboperation;
 
     if (col < operation->ncols) {
         value = operation_get(col, args->operation);
@@ -44,7 +42,7 @@ void* operation_count_get(int col, void* vargs) {
 void operation_count_close(void* vargs) {
     operation_count_args_t* args = vargs;
 
-    operation_close(args->operation);
+    operation_close(args->suboperation);
     free(args);
     return;
 }
