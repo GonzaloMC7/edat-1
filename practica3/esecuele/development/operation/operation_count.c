@@ -4,6 +4,7 @@
 
 typedef struct {
     operation_t* suboperation;
+    int count;
 } operation_count_args_t;
 
 void
@@ -23,20 +24,14 @@ int operation_count_next(void* vargs) {
 
     if (!operation_next(operation)) return 0;
 
+    args->count++;
     return 1;
 }
 
 void* operation_count_get(int col, void* vargs) {
-    void* value;
     operation_count_args_t* args = vargs;
 
-    operation_t* operation = args->suboperation;
-
-    if (col < operation->ncols) {
-        value = operation_get(col, args->operation);
-    }
-
-    return value;
+    return operation_get(col, args->operation);
 }
 
 void operation_count_close(void* vargs) {
@@ -54,6 +49,7 @@ operation_count_create(operation_t* suboperation) {
 
     args = malloc(sizeof(operation_count_args_t));
     args->operation = suboperation;
+    args->count = 0;
 
     operation = malloc(sizeof(operation_t));
     operation->args = args;
