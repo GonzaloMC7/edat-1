@@ -34,6 +34,12 @@ long record_next(record_t* record) {
 }
 
 void record_free(record_t* record) {
+	int i = 0;
+	
+	while(record->values[i]){
+		free(record->values[i];
+	}
+	free(record->values);
 	free(record);
 
 	return;
