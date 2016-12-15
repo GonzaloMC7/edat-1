@@ -18,7 +18,7 @@ record_t* record_create(void** values, int ncols, long next) {
 	record->values = values;
 	record->next = next;
 
-	return record; 
+	return record;
 }
 
 void* record_get(record_t* record, int n) {
@@ -35,12 +35,17 @@ long record_next(record_t* record) {
 
 void record_free(record_t* record) {
 	int i = 0;
-	
-	while(record->values[i]){
-		free(record->values[i];
-		i++;
+
+	if(record == NULL) return;
+	if(record->values == NULL){
+		free(record);
+		return;
 	}
-	free(record->values);
+
+	for(i=0; i<record->ncols; i++){
+		free(record->values[i]);
+	}
+
 	free(record);
 
 	return;

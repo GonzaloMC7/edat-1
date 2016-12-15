@@ -5,7 +5,7 @@
 #
 
 CC = gcc -c -std=c99
-LNK = gcc 
+LNK = gcc
 
 SRC=.
 DBDIR=$(SRC)/database
@@ -45,7 +45,8 @@ MAINOBJS= esecuele.o \
 	projection_sum.o \
 	parser.o \
 	stack.o \
-	type.o 
+	type.o
+
 
 ALTOBJS= esecuele.o \
 	database.o \
@@ -74,40 +75,40 @@ ALTOBJS= esecuele.o \
 	projection_sum.o \
 	parser.o \
 	stack.o \
-	type.o 
+	type.o
 
 #
 # Algebra operations
 #
 operation.o:	$(OPDIR)/operation.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation.c 
+	$(CC) $(OPDIR)/operation.c
 
 operation_count.o:	$(OPDIR)/operation_count.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation_count.c 
+	$(CC) $(OPDIR)/operation_count.c
 
 operation_index.o:	$(OPDIR)/operation_index.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation_index.c 
+	$(CC) $(OPDIR)/operation_index.c
 
 operation_limit.o:	$(OPDIR)/operation_limit.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation_limit.c 
+	$(CC) $(OPDIR)/operation_limit.c
 
 operation_offset.o:	$(OPDIR)/operation_offset.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation_offset.c 
+	$(CC) $(OPDIR)/operation_offset.c
 
 operation_product.o:	$(OPDIR)/operation_product.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation_product.c 
+	$(CC) $(OPDIR)/operation_product.c
 
 operation_project.o:	$(OPDIR)/operation_project.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation_project.c 
+	$(CC) $(OPDIR)/operation_project.c
 
 operation_select.o:	$(OPDIR)/operation_select.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation_select.c 
+	$(CC) $(OPDIR)/operation_select.c
 
 operation_sequential.o:	$(OPDIR)/operation_sequential.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation_sequential.c 
+	$(CC) $(OPDIR)/operation_sequential.c
 
 operation_union.o:	$(OPDIR)/operation_union.c $(OPDIR)/operation.h
-	$(CC) $(OPDIR)/operation_union.c 
+	$(CC) $(OPDIR)/operation_union.c
 
 condition.o:	$(CONDDIR)/condition.c $(CONDDIR)/condition.h
 	$(CC) $(CONDDIR)/condition.c
@@ -147,7 +148,7 @@ parser.o:	$(PARSEDIR)/parser.c $(PARSEDIR)/parser.h
 	$(CC) $(PARSEDIR)/parser.c
 
 stack.o:	$(STACK)/stack.c $(STACK)/stack.h
-	$(CC) $(STACK)/stack.c 
+	$(CC) $(STACK)/stack.c
 
 
 

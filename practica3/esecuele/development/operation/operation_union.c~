@@ -73,10 +73,10 @@ operation_union_create(operation_t* operation1, operation_t* operation2) {
 
     operation = malloc(sizeof(operation_t));
     operation->args = args;
-    operation->reset = operation_union_reset;
-    operation->next = operation_union_next;
-    operation->get = operation_union_get;
-    operation->close = operation_union_close;
+    operation->reset = operation_product_reset;
+    operation->next = operation_product_next;
+    operation->get = operation_product_get;
+    operation->close = operation_product_close;
     operation->ncols = operation_ncols(operation1) + operation_ncols(operation2);
     operation->types = malloc(operation->ncols * sizeof(type_t));
     memcpy(operation->types, operation1->types, operation1->ncols * sizeof(type_t));

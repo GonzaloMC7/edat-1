@@ -42,7 +42,6 @@ void operation_limit_close(void* vargs) {
 
     operation_close(args->suboperation);
     free(args);
-	return;
 }
 
 operation_t*
