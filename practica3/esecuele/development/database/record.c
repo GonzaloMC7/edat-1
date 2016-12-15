@@ -38,6 +38,7 @@ void record_free(record_t* record) {
 	
 	while(record->values[i]){
 		free(record->values[i];
+		i++;
 	}
 	free(record->values);
 	free(record);
