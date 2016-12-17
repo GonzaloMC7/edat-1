@@ -10,7 +10,7 @@ typedef struct {
 void
 operation_count_reset(void* vargs) {
     operation_count_args_t* args = vargs;
-
+    args->count = -1;
     operation_reset(args->suboperation);
 
     return;
@@ -19,13 +19,13 @@ operation_count_reset(void* vargs) {
 int operation_count_next(void* vargs) {
     operation_count_args_t* args = vargs;
     operation_t* suboperation = args->suboperation;
-	
-    if(args->count!= -1) return 0;
+
+  if(args->count != -1) return 0;
 
 	else{
-    	args->count=0;
-		while( operation_next(suboperation)){
-		args->count++;
+        args->count=0;
+		    while(operation_next(suboperation)){
+		        args->count++;
 	   }
 	}
 

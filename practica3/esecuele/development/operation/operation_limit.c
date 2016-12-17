@@ -67,5 +67,3 @@ operation_limit_create(operation_t* suboperation, int limit) {
 
     return operation;
 }
-
-
