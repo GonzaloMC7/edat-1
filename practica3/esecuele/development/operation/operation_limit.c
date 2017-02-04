@@ -23,9 +23,11 @@ int operation_limit_next(void* vargs) {
     operation_t* suboperation = args->suboperation;
     int ret;
 
-    if((ret = operation_next(suboperation))&&(args->position < args->limit)){
-    	args->position++;
-    	return ret;
+    if (args->position < args->limit){
+        if(ret = operation_next(suboperation)){
+        	args->position++;
+        	return ret;
+        }
     }
 
     return 0;

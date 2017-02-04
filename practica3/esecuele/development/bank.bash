@@ -23,9 +23,9 @@ EOF
 $COMMAND query bank_db << EOF
 accounts SEQUENTIAL 1 STR Brooklyn C_COLEQCTE SELECT INT 0 P_COL INT 2 P_COL 2 PROJECT
 EOF
-# - Who owns an account in the Queens branch? Show account number, amount and t#he name of the owner
+# - Who owns an account in the Queens branch? Show account number, amount and the name of the owner
 $COMMAND query bank_db << EOF
 accounts SEQUENTIAL 1 STR Queens C_COLEQCTE SELECT INT 0 P_COL INT 2 P_COL 2 PROJECT accounts_clients SEQUENTIAL PRODUCT 0 2 C_COLEQCOL SELECT INT 0 P_COL INT 1 P_COL INT 3 P_COL 3 PROJECT clients SEQUENTIAL PRODUCT 2 3 C_COLEQCOL SELECT INT 0 P_COL INT 1 P_COL STR 4 P_COL 3 PROJECT
 EOF
 
-#$COMMAND query bank_db
+$COMMAND query bank_db

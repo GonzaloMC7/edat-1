@@ -77,6 +77,16 @@ ALTOBJS= esecuele.o \
 	stack.o \
 	type.o
 
+
+PRUEBA= prueba.o \
+	database.o \
+	index.o \
+	objs/srecord.o \
+	objs/stable.o \
+	type.o
+	
+
+
 #
 # Algebra operations
 #
@@ -170,20 +180,34 @@ table.o:	$(DBDIR)/table.c $(DBDIR)/table.h
 type.o:	$(TYPEDIR)/type.c $(TYPEDIR)/type.o
 	$(CC) $(TYPEDIR)/type.c
 
+
+#
+# Ejecutable de prueba
+#
+prueba.o:	prueba.c
+	$(CC) prueba.c
+
+
 #
 # main esecuele creation (with the table and record you made)
 #
 
-esecuele:	$(MAINOBJS)
+esecuele:	$(MAINOBJS) $(PRUEBA)
 	$(LNK) -o ../install/esecuele $(MAINOBJS)
+	$(LNK) -o ../install/prueba $(PRUEBA)
 	cp bank.bash ../install
 	cp -r example_files ../install/
+	cp libros.bash ../install
+	cp -r files ../install/
 
 
-wvs:	$(ALTOBJS)
+wvs:	$(ALTOBJS) $(PRUEBA)
 	$(LNK) -o ../install/esecuele $(ALTOBJS)
+	$(LNK) -o ../install/prueba $(PRUEBA)
 	cp bank.bash ../install
 	cp -r example_files ../install/
+	cp libros.bash ../install
+	cp -r files ../install/
 
 
 clean:
